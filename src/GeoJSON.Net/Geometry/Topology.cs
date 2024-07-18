@@ -10,6 +10,7 @@ namespace TopoJSON.Net.Geometry
     using GeoJSON.Net.Geometry;
     using Newtonsoft.Json;
     using System.Runtime.Serialization;
+    using System.Xml;
     using TopoJSON.Net.Converters;
 
     /// <summary>
@@ -141,20 +142,23 @@ namespace TopoJSON.Net.Geometry
             List<GeographicPosition> coordinates = new List<GeographicPosition>();
             foreach (var idx in idxArray)
             {
-                Arc arc = new Arc();
-                // We have to invert negative indexes
-                if (idx < 0)
-                {
-                    int realIndex = Math.Abs(idx) - 1;
-                    // We're getting acopy here since we plan to modify it.
-                    arc.Positions = this.Arcs[realIndex].Positions.ToList();
-                    arc.Positions.Reverse();
-                }
-                else
-                {
-                    arc.Positions = this.Arcs[idx].Positions.ToList();
-                }
-                arc = this.decodeArc(arc);
+                //Arc arc = new Arc();
+                //// We have to invert negative indexes
+                //if (idx < 0)
+                //{
+                //    int realIndex = Math.Abs(idx) - 1;
+                //    // We're getting acopy here since we plan to modify it.
+                //    arc.Positions = this.Arcs[realIndex].Positions.ToList();
+                //    arc.Positions.Reverse();
+                //}
+                //else
+                //{
+                //    arc.Positions = this.Arcs[idx].Positions.ToList();
+                //}
+                var positions = Arcs[(idx < 0) ? Math.Abs(idx) - 1 : idx].Positions.ToList();
+                Arc arc = new Arc() { Positions = positions };
+                arc = decodeArc(arc);
+                if (idx < 0) arc.Positions.Reverse();
                 coordinates.AddRange(arc.Positions);
             }
             return coordinates;
@@ -166,23 +170,20 @@ namespace TopoJSON.Net.Geometry
         /// </summary>
         /// <param name="arc">The arc.</param>
         /// <returns>The decoded arc.</returns>
-        private Arc decodeArc (Arc arc) {
-            if (arc == null)
-                return arc;
-            // Decoding is only needed if the arc is quantized.
-            if (this.Transform == null)
-                return arc;
-            Arc decodedArc = new Arc();
-            List<GeographicPosition> positions = new List<GeographicPosition>();
+        private Arc decodeArc (Arc arc) 
+        {
+            if (arc == null || Transform == null) return arc;
+            var result = new Arc();
+            var positions = new List<GeographicPosition>();
             double x = 0, y = 0;
             foreach (var position in arc.Positions)
             {
-                double lon = (x += position.Longitude) * this.Transform.Scale[0] + this.Transform.Translation[0];
-                double lat = (y += position.Latitude) * this.Transform.Scale[1] + this.Transform.Translation[1];
+                double lon = (x += position.Longitude) * Transform.Scale[0] + Transform.Translation[0];
+                double lat = (y += position.Latitude) * Transform.Scale[1] + Transform.Translation[1];
                 positions.Add(new GeographicPosition(lat, lon));
             }
-            decodedArc.Positions = positions;
-            return decodedArc;
+            result.Positions = positions;
+            return result;
         }
     }
 }

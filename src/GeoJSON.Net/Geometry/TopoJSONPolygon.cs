@@ -58,6 +58,12 @@
         public List<List<int>> ArcIdx { get; set; }
 
         /// <summary>
+        /// the id of the polygon
+        /// </summary>
+        [JsonProperty(PropertyName = "id", Required = Required.Always)]
+        public string Id { get; set; }
+
+        /// <summary>
         /// Gets the list of points outlining this Polygon.
         /// </summary>
         public List<GeographicPosition> Coordinates { get; set; }

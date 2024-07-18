@@ -15,6 +15,7 @@ namespace GeoJSON.Net.Geometry
     
     using Newtonsoft.Json;
     using GeoJSON.Net.Converters;
+    using GeoJSON.Net.CoordinateReferenceSystem;
 
     /// <summary>
     /// Defines the <see href="http://geojson.org/geojson-spec.html#polygon">Polygon</see> type.
@@ -117,6 +118,20 @@ namespace GeoJSON.Net.Geometry
         public override int GetHashCode()
         {
             return Coordinates.GetHashCode();
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <returns></returns>
+        public override bool Equals(object obj)
+        {
+            return obj is Polygon polygon &&
+                   Type == polygon.Type &&
+                   EqualityComparer<ICRSObject>.Default.Equals(CRS, polygon.CRS) &&
+                   EqualityComparer<double[]>.Default.Equals(BoundingBoxes, polygon.BoundingBoxes) &&
+                   EqualityComparer<List<LineString>>.Default.Equals(Coordinates, polygon.Coordinates);
         }
     }
 }

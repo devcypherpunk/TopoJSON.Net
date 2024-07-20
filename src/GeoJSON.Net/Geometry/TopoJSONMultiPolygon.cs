@@ -38,6 +38,12 @@
         }
 
         /// <summary>
+        /// the id of the polygon
+        /// </summary>
+        [JsonProperty(PropertyName = "id")]
+        public string Id { get; set; }
+
+        /// <summary>
         /// The arc indices.
         /// </summary>
         [JsonProperty(PropertyName = "arcs", Required = Required.Always)]
